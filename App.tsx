@@ -13,6 +13,16 @@ import { BaiJamjuree_700Bold } from '@expo-google-fonts/bai-jamjuree'
 import blurBg from './src/assets/bg-blur.png'
 import Stripes from './src/assets/stripes.svg'
 import Logo from './src/assets/logo.svg'
+import { makeRedirectUri, useAuthRequest } from 'expo-auth-session'
+import { discovery } from 'expo-auth-session/build/providers/Facebook'
+import { useEffect } from 'react'
+
+const discovery = {
+  authorizationEndpoint: 'https://github.com/login/oauth/authorize',
+  tokenEndpoint: 'https://github.com/login/oauth/access_token',
+  revocationEndpoint:
+    'https://github.com/settings/connections/applications/5254107957705fe1bc11',
+}
 
 const StyledStripes = styled(Stripes)
 const StyledLogo = styled(Logo)
@@ -28,10 +38,28 @@ export default function App() {
     return null
   }
 
+  const [request, response, prompAsync] = useAuthRequest(
+    {
+      clientId: '5254107957705fe1bc11',
+      scopes: ['identity'],
+      redirectUri: makeRedirectUri({
+        scheme: 'nlwspacetime',
+      }),
+    },
+    discovery,
+  )
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { code } = request.extraParams
+      console.log(code)
+    }
+  }, [response])
+
   return (
     <ImageBackground
       source={blurBg}
-      className="bg-gray-900 flex-1 items-center relative px-8 py-10"
+      className="relative flex-1 items-center bg-gray-900 px-8 py-10"
       imageStyle={{ position: 'absolute', left: '-100%' }}
     >
       <StyledStripes className="absolute left-2" />
@@ -39,10 +67,10 @@ export default function App() {
       <View className="flex-1 items-center justify-center gap-6">
         <StyledLogo />
         <View className="space-y-2">
-          <Text className="text-gray-50 text-center font-title text-2xl leading-tight">
+          <Text className="text-center font-title text-2xl leading-tight text-gray-50">
             Sua cápsula do tempo
           </Text>
-          <Text className="text-gray-100 font-body text-center text-base leading-relaxed">
+          <Text className="text-center font-body text-base leading-relaxed text-gray-100">
             Colecione momentos marcantes da sua jornada e compartilhe (se
             quiser) com o mundo!
           </Text>
