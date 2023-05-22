@@ -12,11 +12,29 @@ import NLWLogo from '../src/assets/logo.svg'
 import { Link } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useState } from 'react'
+import * as ImagePicker from 'expo-image-picker'
 
 export default function NewMemory() {
   const { bottom, top } = useSafeAreaInsets()
-  const [isPublic, setIsPublic] = useState(false)
 
+  const [isPublic, setIsPublic] = useState(false)
+  const [content, setContent] = useState('')
+  const [ preview, setPreview] = useState<String | null>(null)
+
+  function openImagePicker() {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+      })
+      if (result.assets[0]) {
+        setPreview(result.assets[0].uri)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+
+  
   return (
     <ScrollView
       className="flex-1 px-8"
@@ -48,17 +66,27 @@ export default function NewMemory() {
         <TouchableOpacity
           className="h-32 items-center justify-center rounded-lg border border-dashed border-gray-500 bg-black/20"
           activeOpacity={0.7}
+          onPress={openImagePicker}
         >
+          {preview ? (
+            <Image 
+              source={{uri: preview}} 
+              className="h-full w-full rounded-lg object-cover"
+            />
+          ) : (
           <View className="flex-row items-center gap-2">
             <Icon name="image" color="#fff" />
             <Text className="text-sm font-bold text-gray-200">
               Adicionar foto ou vídeo de capa
             </Text>
           </View>
+          )}
         </TouchableOpacity>
 
         <TextInput
           multiline
+          value={content}
+          onChangeText={setContent}
           className="p-0 font-body text-lg text-gray-50"
           placeholderTextColor="#56565a"
           placeholder="Adicione fotos, vídeos e relatos sobre essa experiência para lembrar-se para sempre."
